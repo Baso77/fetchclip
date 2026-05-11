@@ -58,21 +58,16 @@ pip install yt-dlp && node backend/server.js
 ## 🖥️ Run Locally
 
 ```bash
-# Install dependencies
+cd d:\DOWNLOAD\fetchclip-production
 npm install
-
-# Install yt-dlp (required for backend)
-pip install yt-dlp
-# OR
-brew install yt-dlp
-
-# Copy env file
-cp .env.example .env
-
-# Start server
-npm run dev
-# → http://localhost:3000
+npm start
 ```
+
+Then open `http://localhost:3000` in your browser.
+
+> Important: Do not run `serve public` separately if you want the built-in backend route. The frontend and API must stay on the same host/port so `/api/fetch-media` resolves correctly.
+>
+> The local Node backend handles media extraction, while Supabase is only used for analytics and the contact form.
 
 ---
 
@@ -84,14 +79,13 @@ User Browser
     ▼
 FetchClip Frontend (HTML/CSS/JS)
     │
-    ├─── POST /functions/v1/fetch-media
+    ├─── POST /api/fetch-media
     │         │
     │         ▼
-    │    Supabase Edge Function (Deno)
+    │    Local Node.js backend (backend/server.js)
     │         │
-    │         ├── Cobalt.tools API (real media extraction)
-    │         ├── oEmbed APIs (metadata)
-    │         └── Supabase DB (cache + analytics)
+    │         ├── yt-dlp-exec media extraction
+    │         └── response metadata and download URLs
     │
     └─── Direct download link → user's browser
 ```

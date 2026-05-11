@@ -5,10 +5,10 @@
  */
 
 // ============================================================
-// LIVE SUPABASE ENDPOINTS — CONNECTED & ACTIVE
+// LOCAL / REMOTE API ENDPOINTS
 // ============================================================
 const EDGE_BASE     = 'https://ndmbkwxisdzfzptejxzp.supabase.co/functions/v1';
-const API_FETCH     = `${EDGE_BASE}/fetch-media`;
+const API_FETCH     = '/api/fetch-media';
 const API_LOG       = `${EDGE_BASE}/fetch-media/log`;
 const API_CONTACT   = `${EDGE_BASE}/fetch-media/contact`;
 const SUPA_KEY      = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbWJrd3hpc2R6ZnpwdGVqeHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTIyOTcsImV4cCI6MjA5Mzk2ODI5N30.roRS52ID1J3ubsqJ7aeCGPwi8vq5G-wIgga90SzP6NY';
@@ -128,19 +128,53 @@ function renderPreview(data, platform) {
     img.onerror = () => { img.style.display='none'; };
 
     const play = document.createElement('div');
-    play.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.18);cursor:pointer;transition:background .2s;';
+    play.style.cssText = 'position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.18);cursor:pointer;transition:background .2s;';
     play.innerHTML = '<span style="font-size:3rem;filter:drop-shadow(0 2px 10px rgba(0,0,0,.7))">▶️</span>';
     play.onmouseenter = () => play.style.background = 'rgba(0,0,0,0.36)';
     play.onmouseleave = () => play.style.background = 'rgba(0,0,0,0.18)';
 
-    if (data.url) {
+    // Prefer a format that includes BOTH video + audio for preview playback.
+    const bestPreviewFormat = data.formats?.find(f => f?.hasVideo && f?.hasAudio) ||
+                               data.formats?.find(f => f?.hasAudio) ||
+                               data.formats?.[0];
+    const bestPreviewUrl = bestPreviewFormat?.url || data.url;
+
+    if (bestPreviewUrl) {
       play.onclick = () => {
         wrap.innerHTML = '';
         const v = document.createElement('video');
-        v.src = data.url;  v.controls = true;  v.autoplay = true;  v.playsinline = true;
+        v.src = bestPreviewUrl;
+
+        v.controls = true;
+
+        // Treat this as user-initiated playback (we're inside ▶️ click).
+        v.autoplay = true;
+
+        // Force unmuted state on the video element (user-gesture from ▶️ click).
+        v.defaultMuted = false;
+        v.muted = false;
+        v.volume = 1;
+
+        v.playsinline = true;
+        v.preload = 'metadata';
+
         if (data.thumbnail) v.poster = data.thumbnail;
         v.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000;';
         wrap.appendChild(v);
+
+        // Start playback once the browser has something playable.
+        v.load();
+        v.addEventListener('canplay', () => {
+          v.muted = false;
+          v.volume = 1;
+          v.play().catch(() => { /* ignore */ });
+        }, { once: true });
+
+        // Extra safety: after metadata loads, re-apply volume/mute state.
+        v.addEventListener('loadedmetadata', () => {
+          v.muted = false;
+          v.volume = 1;
+        }, { once: true });
       };
     }
     wrap.appendChild(img);
@@ -159,18 +193,37 @@ function renderPreview(data, platform) {
   ).join('');
   selectedQuality = formats[0]?.quality || 'HD';
 
+  const firstFormat = formats[0] || {};
+  const primaryText = firstFormat.hasVideo && firstFormat.hasAudio
+    ? `⬇️ Download ${esc(firstFormat.label || 'HD')} Video`
+    : firstFormat.hasVideo
+      ? `⬇️ Download ${esc(firstFormat.label || 'HD')} Video`
+      : `⬇️ Download ${esc(firstFormat.label || 'HD')} Audio`;
+
   // Download buttons
   $('downloadActions').innerHTML = `
     <button class="download-btn download-btn-primary" id="dlPrimary" onclick="triggerDownload(0)">
-      ⬇️ Download ${esc(formats[0]?.label||'HD')} Video
+      ${primaryText}
     </button>
-    ${data.audio_url
-      ? `<button class="download-btn download-btn-secondary" onclick="triggerDownloadAudio()">🎵 Audio Only (MP3)</button>`
-      : ''}
+    ${data.audio_url ? `<button class="download-btn download-btn-secondary" onclick="triggerDownloadAudio()">🎵 Download Audio</button>` : ''}
     ${data.thumbnail
       ? `<button class="download-btn download-btn-secondary" onclick="downloadThumbnail()">🖼️ Download Thumbnail</button>`
       : ''}
   `;
+
+  const previewNote = $('previewNote');
+  if (previewNote) {
+    if (data.warning) {
+      previewNote.textContent = `⚠️ ${data.warning}`;
+      previewNote.classList.remove('hidden');
+    } else if (data.has_audio === false) {
+      previewNote.textContent = '🎧 Note: The chosen download does not include audio. Use the audio download button if available.';
+      previewNote.classList.remove('hidden');
+    } else {
+      previewNote.textContent = '';
+      previewNote.classList.add('hidden');
+    }
+  }
 
   $('previewCard').classList.remove('hidden');
   setTimeout(() => $('previewCard').scrollIntoView({ behavior:'smooth', block:'nearest' }), 80);
@@ -182,17 +235,38 @@ function renderPreview(data, platform) {
 // ============================================================
 // DOWNLOAD TRIGGER
 // ============================================================
+
 function triggerDownload(idx) {
   if (!currentMediaData) return;
   const formats = currentMediaData.formats || [];
   const fmt     = formats[idx] || formats[0];
-  const dlUrl   = fmt?.download_url || fmt?.url || currentMediaData.url;
+
+  const hasAudio = Boolean(fmt?.hasAudio);
+  const dlUrl    = fmt?.download_url || fmt?.url || currentMediaData.url;
   if (!dlUrl) return showError('No download URL available. Please fetch again.');
+
+  // If the user picked a video-only stream, downloading it will always sound muted.
+  // If separate audio exists, block the main download and instruct the user.
+  if (!hasAudio && currentMediaData?.audio_url) {
+    showError('This selected quality is video-only (muted). Use “Download Audio” for sound.');
+    showToast('🎧 Pick “Download Audio” for sound');
+    logEvent({
+      url: currentMediaData.webpage_url || '',
+      platform: currentMediaData.platform || '',
+      quality: fmt?.quality || 'HD',
+      action: 'blocked_video_only_download'
+    });
+    return;
+  }
 
   startDownload(dlUrl, getFilename(currentMediaData, fmt));
   showToast('⬇️ Download started!');
-  logEvent({ url: currentMediaData.webpage_url||'', platform: currentMediaData.platform||'',
-             quality: fmt?.quality||'HD', action:'download' });
+  logEvent({
+    url: currentMediaData.webpage_url || '',
+    platform: currentMediaData.platform || '',
+    quality: fmt?.quality || 'HD',
+    action: 'download'
+  });
 }
 
 function triggerDownloadAudio() {
@@ -208,21 +282,39 @@ function downloadThumbnail() {
 }
 
 function startDownload(url, filename) {
+  const downloadUrl = `/api/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(filename)}`;
   const a = document.createElement('a');
-  a.href = url;  a.download = filename;  a.target = '_blank';  a.rel = 'noopener';
+  a.href = downloadUrl;
+  a.download = filename;
+  a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
   setTimeout(() => document.body.removeChild(a), 1000);
 }
 
+
 function selectQuality(btn, quality, idx) {
   document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedQuality = quality;
+
   const dlBtn = document.getElementById('dlPrimary');
-  if (dlBtn) {
-    dlBtn.onclick = () => triggerDownload(idx);
-    dlBtn.innerHTML = `⬇️ Download ${esc(currentMediaData?.formats?.[idx]?.label || quality)} Video`;
+  if (!dlBtn) return;
+
+  const fmt = currentMediaData?.formats?.[idx];
+  const hasVideo = Boolean(fmt?.hasVideo);
+  const hasAudio = Boolean(fmt?.hasAudio);
+
+  dlBtn.onclick = () => triggerDownload(idx);
+
+  if (hasVideo && hasAudio) {
+    dlBtn.innerHTML = `⬇️ Download ${esc(fmt?.label || quality)}`;
+  } else if (hasVideo && !hasAudio) {
+    dlBtn.innerHTML = `⬇️ Download ${esc(fmt?.label || quality)} (muted)`;
+  } else if (!hasVideo && hasAudio) {
+    dlBtn.innerHTML = `⬇️ Download ${esc(fmt?.label || quality)} (audio)`;
+  } else {
+    dlBtn.innerHTML = `⬇️ Download ${esc(fmt?.label || quality)}`;
   }
 }
 

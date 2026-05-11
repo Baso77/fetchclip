@@ -420,10 +420,11 @@ input { font-family: inherit; }
 
 /* Preview Card */
 .preview-card {
-  margin-top: 24px;
+  margin: 24px auto 0;
   border-top: 1px solid var(--glass-border);
   padding-top: 24px;
   animation: slideIn 0.4s ease;
+  max-width: 1040px;
 }
 
 @keyframes slideIn {
@@ -468,8 +469,9 @@ input { font-family: inherit; }
 
 .preview-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(320px, 1.2fr) minmax(320px, 0.8fr);
   gap: 24px;
+  align-items: start;
 }
 
 .preview-media-wrap {
@@ -477,11 +479,14 @@ input { font-family: inherit; }
   overflow: hidden;
   background: #111120;
   aspect-ratio: 9/16;
-  max-height: 400px;
+  min-height: 320px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+
+  /* Ensure video controls/preview are actually clickable */
+  pointer-events: auto;
 }
 
 .preview-media-wrap img,
@@ -489,6 +494,11 @@ input { font-family: inherit; }
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Extra guarantee: prevent anything inside the preview area from blocking clicks */
+.preview-media-wrap * {
+  pointer-events: auto;
 }
 
 .preview-info {
@@ -601,6 +611,20 @@ input { font-family: inherit; }
 .download-note {
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.preview-note {
+  font-size: 0.85rem;
+  color: var(--accent-2);
+  background: rgba(108,99,255,0.08);
+  border: 1px solid rgba(108,99,255,0.18);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 14px;
+}
+
+.preview-note.hidden {
+  display: none;
 }
 
 /* ===== PLATFORM PILLS ===== */
