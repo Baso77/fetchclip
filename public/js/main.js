@@ -69,7 +69,7 @@ function toggleFaq(btn) {
   if (!isOpen) item.classList.add('open');
 }
 
-// ===== CONTACT FORM — POSTS TO LIVE SUPABASE EDGE FUNCTION =====
+// ===== CONTACT FORM — POSTS TO VERCEL API =====
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
   contactForm.addEventListener('submit', async e => {
@@ -95,25 +95,22 @@ if (contactForm) {
     }
 
     try {
-      // Wait for downloader.js to expose the endpoint (it loads first)
-      const apiUrl  = window.FETCHCLIP_API_CONTACT || 'https://ndmbkwxisdzfzptejxzp.supabase.co/functions/v1/fetch-media/contact';
-      const supaKey = window.FETCHCLIP_SUPA_KEY    || '';
+      const apiUrl = window.FETCHCLIP_API_CONTACT || '/api/contact';
 
       const res = await fetch(apiUrl, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supaKey}` },
+        headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
       });
 
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || 'Submit failed');
+      if (!res.ok) throw new Error(data.error || data.message || 'Submit failed');
 
-      showFormMsg('✓ Message sent! We\'ll reply within 24 hours.', 'success');
+      showFormMsg('✓ Message sent! We&apos;ll reply within 24 hours.', 'success');
       contactForm.reset();
 
     } catch (err) {
-      // Even on network error we show success — message saved if DB reachable
-      showFormMsg('✓ Message received! We\'ll get back to you within 24 hours.', 'success');
+      showFormMsg('✓ Message received! We&apos;ll get back to you within 24 hours.', 'success');
       contactForm.reset();
     } finally {
       btn.textContent = origText;

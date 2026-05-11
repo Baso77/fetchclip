@@ -1,21 +1,21 @@
 /**
  * FetchClip — Downloader Engine
- * LIVE: Supabase Edge Function "fetch-media"
+ * Backend: Vercel API Routes + Supabase
  * Project: Downloader (ndmbkwxisdzfzptejxzp) — ap-northeast-1
  */
 
 // ============================================================
-// LIVE SUPABASE ENDPOINTS — CONNECTED & ACTIVE
+// API ENDPOINTS — VERCEL ROUTES
 // ============================================================
-const EDGE_BASE     = 'https://ndmbkwxisdzfzptejxzp.supabase.co/functions/v1';
-const API_FETCH     = `${EDGE_BASE}/fetch-media`;
-const API_LOG       = `${EDGE_BASE}/fetch-media/log`;
-const API_CONTACT   = `${EDGE_BASE}/fetch-media/contact`;
-const SUPA_KEY      = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbWJrd3hpc2R6ZnpwdGVqeHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTIyOTcsImV4cCI6MjA5Mzk2ODI5N30.roRS52ID1J3ubsqJ7aeCGPwi8vq5G-wIgga90SzP6NY';
+const API_BASE      = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api'
+  : '/api';
+const API_FETCH     = `${API_BASE}/fetch-media`;
+const API_LOG       = `${API_BASE}/log`;
+const API_CONTACT   = `${API_BASE}/contact`;
 
 // expose for contact form used in main.js
 window.FETCHCLIP_API_CONTACT = API_CONTACT;
-window.FETCHCLIP_SUPA_KEY    = SUPA_KEY;
 
 let currentMediaData = null;
 let selectedQuality  = null;
@@ -76,7 +76,7 @@ async function handleFetch() {
 }
 
 // ============================================================
-// EDGE FUNCTION CALL
+// API CALL
 // ============================================================
 async function callEdge(url) {
   const ctrl = new AbortController();
@@ -84,13 +84,13 @@ async function callEdge(url) {
   try {
     const res  = await fetch(API_FETCH, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPA_KEY}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url }),
       signal: ctrl.signal,
     });
     clearTimeout(tid);
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+    if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
     return data;
   } catch (e) {
     clearTimeout(tid);
@@ -227,13 +227,13 @@ function selectQuality(btn, quality, idx) {
 }
 
 // ============================================================
-// SUPABASE LOGGING (non-blocking)
+// LOGGING (non-blocking)
 // ============================================================
 async function logEvent(payload) {
   try {
     await fetch(API_LOG, {
       method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${SUPA_KEY}` },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify(payload),
     });
   } catch { /* non-critical */ }
