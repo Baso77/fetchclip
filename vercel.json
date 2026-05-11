@@ -12,13 +12,12 @@
       "dest": "/backend/server.js"
     },
     {
-      "src": "/(.*\\.(html|css|js|svg|png|jpg|ico|json|txt|xml))",
-      "dest": "/public/$1"
+      "src": "/",
+      "dest": "/public/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/backend/server.js"
+      "dest": "/public/$1"
     }
   ]
 }
-
