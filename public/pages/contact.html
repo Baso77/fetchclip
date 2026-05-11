@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us – FetchClip</title>
+  <meta name="description" content="Contact FetchClip. Get help with downloads, report issues, or send us feedback." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://fetchclip.app/pages/contact.html" />
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="icon" href="../images/favicon.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo"><span class="logo-icon">⬇</span><span class="logo-text">FetchClip</span></a>
+    <div class="nav-links" id="navLinks">
+      <a href="/pages/instagram-reel-downloader.html">Instagram</a>
+      <a href="/pages/tiktok-video-downloader.html">TikTok</a>
+      <a href="/pages/youtube-shorts-downloader.html">YouTube</a>
+      <a href="/pages/facebook-video-downloader.html">Facebook</a>
+      <a href="/blog/index.html">Blog</a>
+    </div>
+    <div class="nav-actions">
+      <a href="/#downloader" class="btn-nav-cta">Download Free</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p>Have a question or issue? We typically respond within 24 hours.</p>
+  </div>
+</section>
+
+<div class="container">
+  <!-- Contact info cards -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:800px;margin:0 auto 60px;">
+    <div class="step-card" style="text-align:center;">
+      <div class="step-icon">📧</div>
+      <h3>Email</h3>
+      <p><a href="mailto:support@fetchclip.app" style="color:var(--accent);">support@fetchclip.app</a></p>
+    </div>
+    <div class="step-card" style="text-align:center;">
+      <div class="step-icon">⚖️</div>
+      <h3>Legal</h3>
+      <p><a href="mailto:legal@fetchclip.app" style="color:var(--accent);">legal@fetchclip.app</a></p>
+    </div>
+    <div class="step-card" style="text-align:center;">
+      <div class="step-icon">🔔</div>
+      <h3>DMCA</h3>
+      <p><a href="mailto:dmca@fetchclip.app" style="color:var(--accent);">dmca@fetchclip.app</a></p>
+    </div>
+  </div>
+
+  <form class="contact-form" id="contactForm">
+    <div class="form-group">
+      <label for="contactName">Your Name *</label>
+      <input type="text" id="contactName" class="form-control" placeholder="Jane Smith" required />
+    </div>
+    <div class="form-group">
+      <label for="contactEmail">Email Address *</label>
+      <input type="email" id="contactEmail" class="form-control" placeholder="jane@example.com" required />
+    </div>
+    <div class="form-group">
+      <label for="contactSubject">Subject</label>
+      <select id="contactSubject" class="form-control">
+        <option value="general">General Question</option>
+        <option value="bug">Report a Bug</option>
+        <option value="download">Download Issue</option>
+        <option value="dmca">DMCA / Copyright</option>
+        <option value="partnership">Business / Partnership</option>
+        <option value="feedback">Feedback</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="contactMessage">Message *</label>
+      <textarea id="contactMessage" class="form-control" placeholder="Describe your issue or question in detail. If reporting a download error, include the URL you were trying to download." required></textarea>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <button type="submit" class="btn-submit">Send Message</button>
+      <span style="font-size:0.8rem;color:var(--text-muted);">We respond within 24 hours</span>
+    </div>
+  </form>
+
+  <!-- FAQ Link -->
+  <div style="text-align:center;padding:40px 0 80px;">
+    <p style="color:var(--text-secondary);margin-bottom:16px;">Before contacting us, check if your question is answered in our FAQ:</p>
+    <a href="/#faq" class="btn-cta-large" style="display:inline-block;padding:12px 28px;font-size:0.9rem;">View FAQ →</a>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo"><span class="logo-icon">⬇</span><span class="logo-text">FetchClip</span></a>
+        <p>Free HD video downloader for all major platforms.</p>
+      </div>
+      <div class="footer-col"><h4>Legal</h4><ul>
+        <li><a href="/pages/privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="/pages/terms-of-service.html">Terms of Service</a></li>
+        <li><a href="/pages/disclaimer.html">Disclaimer</a></li>
+        <li><a href="/pages/dmca.html">DMCA</a></li>
+        <li><a href="/pages/contact.html">Contact</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 FetchClip. All rights reserved.</p></div>
+  </div>
+</footer>
+
+<div class="recent-toast hidden" id="recentToast"><span id="toastMsg">✓ Done</span></div>
+<script src="../js/main.js"></script>
+</body>
+</html>

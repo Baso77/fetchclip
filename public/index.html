@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FetchClip – Download Instagram Reels, TikTok, YouTube Shorts & More</title>
+  <meta name="description" content="FetchClip is the fastest free online video downloader. Download Instagram Reels, TikTok videos, YouTube Shorts, Facebook videos, and Twitter/X videos in HD quality. No watermark, no signup required." />
+  <meta name="keywords" content="instagram reel downloader, tiktok downloader, youtube shorts downloader, facebook video downloader, twitter video downloader, free video downloader, HD video download" />
+  <meta name="author" content="FetchClip" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://fetchclip.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FetchClip – Download Any Social Media Video Free" />
+  <meta property="og:description" content="Paste any link. Download in HD. Instagram, TikTok, YouTube, Facebook, Twitter — all in one place." />
+  <meta property="og:url" content="https://fetchclip.app/" />
+  <meta property="og:image" content="https://fetchclip.app/images/og-cover.png" />
+  <meta property="og:site_name" content="FetchClip" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="FetchClip – Free HD Video Downloader" />
+  <meta name="twitter:description" content="Download Instagram Reels, TikTok, YouTube Shorts & more. Free, fast, no signup." />
+  <meta name="twitter:image" content="https://fetchclip.app/images/og-cover.png" />
+
+  <!-- Schema Markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "FetchClip",
+    "url": "https://fetchclip.app",
+    "description": "Free HD video downloader for Instagram, TikTok, YouTube, Facebook and Twitter.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <!-- FAQ Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is FetchClip free to use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, FetchClip is 100% free. No account required, no hidden fees."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which platforms does FetchClip support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FetchClip supports Instagram (Reels, Stories, Posts), TikTok, YouTube (Videos & Shorts), Facebook Videos, and Twitter/X Videos."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I download videos in HD quality?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. FetchClip supports HD and multiple quality options wherever the source allows."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does FetchClip remove watermarks?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FetchClip downloads the original media file as-is from the platform. TikTok watermark removal depends on source availability."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <span class="logo-icon">⬇</span>
+      <span class="logo-text">FetchClip</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="/pages/instagram-reel-downloader.html">Instagram</a>
+      <a href="/pages/tiktok-video-downloader.html">TikTok</a>
+      <a href="/pages/youtube-shorts-downloader.html">YouTube</a>
+      <a href="/pages/facebook-video-downloader.html">Facebook</a>
+      <a href="/blog/index.html">Blog</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#downloader" class="btn-nav-cta">Download Free</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="container">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Free · HD · No Signup · 8 Platforms
+    </div>
+    <h1 class="hero-title">
+      Download Any<br/>
+      <span class="gradient-text">Social Media Video</span><br/>
+      In Seconds
+    </h1>
+    <p class="hero-sub">
+      Paste a link from Instagram, TikTok, YouTube, Facebook, or Twitter.<br/>
+      FetchClip fetches the real media — preview it, then download in HD.
+    </p>
+
+    <!-- ===== MAIN DOWNLOADER ===== -->
+    <div class="downloader-box" id="downloader">
+      <div class="platform-tabs">
+        <button class="tab active" data-platform="auto">🔍 Auto Detect</button>
+        <button class="tab" data-platform="instagram">📸 Instagram</button>
+        <button class="tab" data-platform="tiktok">🎵 TikTok</button>
+        <button class="tab" data-platform="youtube">▶️ YouTube</button>
+        <button class="tab" data-platform="facebook">📘 Facebook</button>
+        <button class="tab" data-platform="twitter">🐦 Twitter/X</button>
+      </div>
+
+      <div class="url-input-row">
+        <input
+          type="url"
+          id="urlInput"
+          class="url-input"
+          placeholder="Paste your video link here — Instagram, TikTok, YouTube, Facebook, Twitter..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="fetch-btn" id="fetchBtn" onclick="handleFetch()">
+          <span id="fetchBtnText">Fetch Media</span>
+          <span id="fetchBtnSpinner" class="spinner hidden"></span>
+        </button>
+      </div>
+
+      <div class="input-hints">
+        <span>✓ Works on mobile</span>
+        <span>✓ HD quality</span>
+        <span>✓ No account needed</span>
+        <span>✓ Free forever</span>
+      </div>
+
+      <!-- Error Banner -->
+      <div class="error-banner hidden" id="errorBanner">
+        <span class="error-icon">⚠️</span>
+        <span id="errorMsg">Something went wrong. Please try again.</span>
+        <button onclick="dismissError()" class="error-close">✕</button>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state hidden" id="loadingState">
+        <div class="loading-anim">
+          <div class="loading-bar"></div>
+        </div>
+        <p id="loadingText">Detecting platform...</p>
+      </div>
+
+      <!-- ===== PREVIEW CARD ===== -->
+      <div class="preview-card hidden" id="previewCard">
+        <div class="preview-header">
+          <span class="preview-platform-badge" id="previewPlatform">Platform</span>
+          <span class="preview-meta" id="previewMeta">–</span>
+          <button class="preview-close" onclick="clearPreview()">✕ Clear</button>
+        </div>
+
+        <div class="preview-body">
+          <div class="preview-media-wrap" id="previewMediaWrap">
+            <!-- Thumbnail or video player rendered by JS -->
+          </div>
+
+          <div class="preview-info">
+            <h3 class="preview-title" id="previewTitle">Loading title...</h3>
+            <div class="preview-stats" id="previewStats"></div>
+
+            <div class="quality-selector" id="qualitySelector">
+              <label>Quality</label>
+              <div class="quality-options" id="qualityOptions">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <div class="download-actions" id="downloadActions">
+              <!-- Rendered by JS -->
+            </div>
+
+            <div class="download-note">
+              <span>💡 If download doesn't start, right-click → Save As</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Pills -->
+    <div class="platform-pills">
+      <a href="/pages/instagram-reel-downloader.html" class="pill">Instagram Reels</a>
+      <a href="/pages/instagram-reel-downloader.html" class="pill">Instagram Stories</a>
+      <a href="/pages/youtube-shorts-downloader.html" class="pill">YouTube Shorts</a>
+      <a href="/pages/tiktok-video-downloader.html" class="pill">TikTok Videos</a>
+      <a href="/pages/facebook-video-downloader.html" class="pill">Facebook Videos</a>
+      <a href="#" class="pill">Twitter/X Videos</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="how-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>How FetchClip Works</h2>
+      <p>Three steps to download any video for free</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">🔗</div>
+        <h3>Paste the Link</h3>
+        <p>Copy the video URL from Instagram, TikTok, YouTube, Facebook, or Twitter and paste it into FetchClip.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">🎬</div>
+        <h3>Fetch & Preview</h3>
+        <p>FetchClip instantly fetches the real media, shows you a live preview with thumbnail and metadata.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">⬇️</div>
+        <h3>Download HD</h3>
+        <p>Choose your quality and click Download. Works on desktop and mobile. No signup needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PLATFORM CARDS ===== -->
+<section class="platforms-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>All Platforms. One Tool.</h2>
+      <p>FetchClip supports 8 major social media platforms</p>
+    </div>
+    <div class="platforms-grid">
+      <a href="/pages/instagram-reel-downloader.html" class="platform-card">
+        <div class="pcard-icon">📸</div>
+        <h3>Instagram</h3>
+        <p>Reels, Stories, Posts & IGTV</p>
+        <span class="pcard-link">Download ↗</span>
+      </a>
+      <a href="/pages/tiktok-video-downloader.html" class="platform-card">
+        <div class="pcard-icon">🎵</div>
+        <h3>TikTok</h3>
+        <p>Videos without watermark</p>
+        <span class="pcard-link">Download ↗</span>
+      </a>
+      <a href="/pages/youtube-shorts-downloader.html" class="platform-card">
+        <div class="pcard-icon">▶️</div>
+        <h3>YouTube</h3>
+        <p>Shorts, Videos in 4K/HD</p>
+        <span class="pcard-link">Download ↗</span>
+      </a>
+      <a href="/pages/facebook-video-downloader.html" class="platform-card">
+        <div class="pcard-icon">📘</div>
+        <h3>Facebook</h3>
+        <p>Public videos & Reels</p>
+        <span class="pcard-link">Download ↗</span>
+      </a>
+      <a href="#downloader" class="platform-card">
+        <div class="pcard-icon">🐦</div>
+        <h3>Twitter / X</h3>
+        <p>Videos & GIFs</p>
+        <span class="pcard-link">Download ↗</span>
+      </a>
+      <a href="#downloader" class="platform-card">
+        <div class="pcard-icon">📌</div>
+        <h3>Pinterest</h3>
+        <p>Videos & idea pins</p>
+        <span class="pcard-link">Download ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="features-section">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature-item">
+        <span class="feature-icon">⚡</span>
+        <h4>Lightning Fast</h4>
+        <p>Media fetched in under 3 seconds on average.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔒</span>
+        <h4>Secure & Private</h4>
+        <p>We never store your downloaded videos or personal data.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📱</span>
+        <h4>Mobile Ready</h4>
+        <p>Works perfectly on iPhone, Android, and all browsers.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🎯</span>
+        <h4>HD Quality</h4>
+        <p>Download in the highest available resolution — up to 4K.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🆓</span>
+        <h4>100% Free</h4>
+        <p>No subscription. No hidden fees. Free forever.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🌐</span>
+        <h4>No Install Needed</h4>
+        <p>Works entirely in your browser. No app download required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know about FetchClip</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Is FetchClip completely free?
+          <span class="faq-arrow">›</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes. FetchClip is 100% free with no signup, no subscription, and no hidden fees. You can download unlimited videos at no cost.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Which platforms are supported?
+          <span class="faq-arrow">›</span>
+        </button>
+        <div class="faq-answer">
+          <p>FetchClip supports Instagram (Reels, Stories, Posts, IGTV), TikTok, YouTube (Videos & Shorts), Facebook, Twitter/X, and Pinterest videos.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Can I download in HD or 4K quality?
+          <span class="faq-arrow">›</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes. FetchClip fetches the highest available quality from the source. For YouTube videos, you can select from multiple quality options including HD and 4K where available.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Does FetchClip work on iPhone and Android?
+          <span class="faq-arrow">›</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes. FetchClip works on all mobile browsers including Safari on iPhone and Chrome on Android. No app download required.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Is it safe to use FetchClip?
+          <span class="faq-arrow">›</span>
+        </button>
+        <div class="faq-answer">
+          <p>Absolutely. FetchClip does not store your downloads or any personal information. All media URLs are processed temporarily and securely.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Why can't I download private videos?
+          <span class="faq-arrow">›</span>
+        </button>
+        <div class="faq-answer">
+          <p>FetchClip can only access publicly available content. Private accounts, private videos, or restricted content cannot be fetched due to platform privacy settings.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Is downloading social media videos legal?
+          <span class="faq-arrow">›</span>
+        </button>
+        <div class="faq-answer">
+          <p>Downloading videos for personal use is generally considered fair use. However, redistributing or repurposing downloaded content may violate platform terms of service or copyright law. Always respect content creators' rights.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BLOG TEASER ===== -->
+<section class="blog-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Tips & Tutorials</h2>
+      <p>Learn how to download videos like a pro</p>
+    </div>
+    <div class="blog-grid">
+      <a href="/blog/how-to-download-instagram-reels.html" class="blog-card">
+        <div class="blog-tag">Instagram</div>
+        <h3>How to Download Instagram Reels in HD (2025 Guide)</h3>
+        <p>Step-by-step guide to saving any Instagram Reel to your device for free.</p>
+        <span class="blog-read">Read More →</span>
+      </a>
+      <a href="/blog/download-tiktok-without-watermark.html" class="blog-card">
+        <div class="blog-tag">TikTok</div>
+        <h3>Save TikTok Videos Without Watermark – Free Method</h3>
+        <p>The easiest way to download TikTok videos without the annoying watermark.</p>
+        <span class="blog-read">Read More →</span>
+      </a>
+      <a href="/blog/download-youtube-shorts-hd.html" class="blog-card">
+        <div class="blog-tag">YouTube</div>
+        <h3>Download YouTube Shorts in HD — Full Guide</h3>
+        <p>How to save YouTube Shorts to your phone or computer in the highest quality.</p>
+        <span class="blog-read">Read More →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA BANNER ===== -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Start Downloading Now</h2>
+      <p>No account. No credit card. Just paste and download.</p>
+      <a href="#downloader" class="btn-cta-large">Download Free ↑</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo">
+          <span class="logo-icon">⬇</span>
+          <span class="logo-text">FetchClip</span>
+        </a>
+        <p>The fastest free video downloader for Instagram, TikTok, YouTube, Facebook, and Twitter.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter">𝕏</a>
+          <a href="#" aria-label="Instagram">📸</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Platforms</h4>
+        <ul>
+          <li><a href="/pages/instagram-reel-downloader.html">Instagram Downloader</a></li>
+          <li><a href="/pages/tiktok-video-downloader.html">TikTok Downloader</a></li>
+          <li><a href="/pages/youtube-shorts-downloader.html">YouTube Downloader</a></li>
+          <li><a href="/pages/facebook-video-downloader.html">Facebook Downloader</a></li>
+          <li><a href="/pages/instagram-story-downloader.html">Instagram Story Downloader</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/blog/index.html">Blog</a></li>
+          <li><a href="/blog/how-to-download-instagram-reels.html">Instagram Guide</a></li>
+          <li><a href="/blog/download-tiktok-without-watermark.html">TikTok Guide</a></li>
+          <li><a href="/blog/download-youtube-shorts-hd.html">YouTube Guide</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/pages/privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="/pages/terms-of-service.html">Terms of Service</a></li>
+          <li><a href="/pages/disclaimer.html">Disclaimer</a></li>
+          <li><a href="/pages/contact.html">Contact Us</a></li>
+          <li><a href="/pages/dmca.html">DMCA</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 FetchClip. All rights reserved.</p>
+      <p class="footer-disclaimer">FetchClip is intended for personal use only. Please respect copyright and platform terms of service.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Recent Downloads Toast -->
+<div class="recent-toast hidden" id="recentToast">
+  <span id="toastMsg">✓ Download started</span>
+</div>
+
+<script src="js/downloader.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
