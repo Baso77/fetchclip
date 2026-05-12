@@ -31,7 +31,7 @@ function updatePlaceholder(p) {
   if (!input) return;
   const map = {
     auto:      'Paste your video link here — Instagram, TikTok, YouTube, Facebook, Twitter…',
-    instagram: 'Paste Instagram Reel, Story, or Post URL here…',
+    instagram: 'Paste Instagram Reel, Story, post, or TV/IGTV URL here…',
     tiktok:    'Paste TikTok video URL here…',
     youtube:   'Paste YouTube video or Shorts URL here…',
     facebook:  'Paste Facebook video URL here…',
