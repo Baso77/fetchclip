@@ -6,7 +6,7 @@
 
 // Get the backend URL from environment or use current origin
 const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000' 
+  ? 'http://localhost:5000' 
   : window.location.origin;
 
 const API_FETCH   = `${BACKEND_URL}/api/fetch-media`;

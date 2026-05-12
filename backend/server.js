@@ -691,7 +691,7 @@ app.post("/api/fetch-media", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`FetchClip backend listening on http://localhost:${PORT}`);
 });
