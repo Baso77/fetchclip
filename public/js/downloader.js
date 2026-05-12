@@ -31,7 +31,7 @@ function detectPlatform(url) {
     if (host.includes('youtube.com') || host.includes('youtu.be')) return 'youtube';
     if (host.includes('facebook.com') || host.includes('fb.watch'))return 'facebook';
     if (host.includes('twitter.com')  || host.includes('x.com'))   return 'twitter';
-    if (host.includes('pinterest.com'))                            return 'pinterest';
+    if (host.includes('pinterest.com') || host.includes('pin.it')) return 'pinterest';
     return null;
   } catch { return null; }
 }
@@ -243,6 +243,9 @@ function renderPreview(data, platform) {
     ${data.audio_url ? `<button class="download-btn download-btn-secondary" onclick="triggerDownloadAudio()">${esc(data.audio_button_label || '🎵 Download sound only')}</button>` : ''}
     ${data.thumbnail
       ? `<button class="download-btn download-btn-secondary" onclick="downloadThumbnail()">🖼️ Download Thumbnail</button>`
+      : ''}
+    ${data.whatsapp_share
+      ? `<a href="${data.whatsapp_share}" target="_blank" rel="noopener" class="download-btn download-btn-secondary" style="text-decoration:none;">💬 Share via WhatsApp</a>`
       : ''}
   `;
 
