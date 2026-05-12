@@ -1356,3 +1356,78 @@ textarea.form-control {
   .downloader-box { padding: 20px; }
   .hero { padding-top: calc(var(--nav-h) + 40px); padding-bottom: 60px; }
 }
+
+/* ── ADD THESE STYLES TO THE BOTTOM OF YOUR main.css ── */
+
+/* YouTube Coming Soon Tab */
+.tab-soon {
+  opacity: 0.6;
+  position: relative;
+}
+.tab-soon:hover {
+  opacity: 0.8;
+  background: rgba(255,255,255,0.05) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* YouTube Soon Banner */
+.youtube-soon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: #fbbf24;
+  animation: slideIn 0.3s ease;
+}
+.youtube-soon button {
+  margin-left: auto;
+  color: #fbbf24;
+  opacity: 0.7;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.youtube-soon button:hover { opacity: 1; }
+
+/* Download button improvements */
+.download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: var(--transition);
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: center;
+}
+.download-btn + .download-btn,
+.download-btn + a.download-btn {
+  margin-top: 8px;
+}
+a.download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Preview media wrap fix */
+.preview-media-wrap {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #111120;
+  min-height: 200px;
+  max-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}

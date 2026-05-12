@@ -142,10 +142,16 @@
         <button class="tab active" data-platform="auto">🔍 Auto Detect</button>
         <button class="tab" data-platform="instagram">📸 Instagram</button>
         <button class="tab" data-platform="tiktok">🎵 TikTok</button>
-        <button class="tab" data-platform="youtube">▶️ YouTube</button>
         <button class="tab" data-platform="facebook">📘 Facebook</button>
         <button class="tab" data-platform="twitter">🐦 Twitter/X</button>
         <button class="tab" data-platform="pinterest">📌 Pinterest</button>
+        <button class="tab tab-soon" data-platform="youtube" onclick="showYoutubeSoon(event)">▶️ YouTube ⏳</button>
+      </div>
+
+      <div class="youtube-soon hidden" id="youtubeSoonBanner">
+        <span>⏳</span>
+        <span>YouTube downloading is <strong>coming soon</strong>! We're working hard on it. Stay tuned 🚀</span>
+        <button onclick="dismissYoutubeSoon()">✕</button>
       </div>
 
       <div class="url-input-row">

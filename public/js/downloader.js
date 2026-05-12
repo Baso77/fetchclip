@@ -1,66 +1,51 @@
-/**
- * FetchClip — Downloader Engine
- * LIVE: Supabase Edge Function "fetch-media"
- * Project: Downloader (ndmbkwxisdzfzptejxzp) — ap-northeast-1
+﻿/**
+ * FetchClip — Downloader Engine v2.0
+ * Supports: Instagram, TikTok, Facebook, Twitter/X, Pinterest
+ * YouTube: Coming Soon
  */
 
-// ============================================================
-// LOCAL / REMOTE API ENDPOINTS
-// ============================================================
 const EDGE_BASE   = 'https://ndmbkwxisdzfzptejxzp.supabase.co/functions/v1';
 const API_FETCH   = `${EDGE_BASE}/fetch-media`;
 const API_LOG     = `${EDGE_BASE}/fetch-media/log`;
 const API_CONTACT = `${EDGE_BASE}/fetch-media/contact`;
 const SUPA_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbWJrd3hpc2R6ZnpwdGVqeHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTIyOTcsImV4cCI6MjA5Mzk2ODI5N30.roRS52ID1J3ubsqJ7aeCGPwi8vq5G-wIgga90SzP6NY';
 
-// expose for contact form used in main.js
 window.FETCHCLIP_API_CONTACT = API_CONTACT;
 window.FETCHCLIP_SUPA_KEY    = SUPA_KEY;
 
 let currentMediaData = null;
-let selectedQuality  = null;
 
-// ============================================================
-// PLATFORM DETECTION
-// ============================================================
+// ── PLATFORM DETECTION ─────────────────────────────────────────
 function detectPlatform(url) {
   try {
     const host = new URL(url).hostname.replace('www.', '');
-    if (host.includes('instagram.com'))                            return 'instagram';
-    if (host.includes('tiktok.com'))                               return 'tiktok';
-    if (host.includes('youtube.com') || host.includes('youtu.be')) return 'youtube';
-    if (host.includes('facebook.com') || host.includes('fb.watch'))return 'facebook';
-    if (host.includes('twitter.com')  || host.includes('x.com'))   return 'twitter';
-    if (host.includes('pinterest.com') || host.includes('pin.it')) return 'pinterest';
+    if (host.includes('instagram.com'))                              return 'instagram';
+    if (host.includes('tiktok.com'))                                return 'tiktok';
+    if (host.includes('facebook.com') || host.includes('fb.watch')) return 'facebook';
+    if (host.includes('twitter.com')  || host.includes('x.com'))    return 'twitter';
+    if (host.includes('pinterest.com')|| host.includes('pin.it'))   return 'pinterest';
+    // YouTube removed — coming soon
+    if (host.includes('youtube.com')  || host.includes('youtu.be')) return 'youtube_disabled';
     return null;
   } catch { return null; }
 }
 
 function getPlatformLabel(p) {
-  return { instagram:'📸 Instagram', tiktok:'🎵 TikTok', youtube:'▶️ YouTube',
-           facebook:'📘 Facebook', twitter:'🐦 Twitter/X', pinterest:'📌 Pinterest' }[p] || '🌐 Video';
+  const map = {
+    instagram: '📸 Instagram',
+    tiktok:    '🎵 TikTok',
+    facebook:  '📘 Facebook',
+    twitter:   '🐦 Twitter/X',
+    pinterest: '📌 Pinterest',
+  };
+  return map[p] || '🌐 Video';
 }
 
-/** CDNs that block or mute <video> without a proper Referer — stream via our preview proxy. */
-function previewStreamSrc(mediaUrl) {
-  if (!mediaUrl) return '';
-  try {
-    const h = new URL(mediaUrl).hostname.toLowerCase();
-    if (
-      h.includes('cdninstagram') ||
-      h.includes('fbcdn.net') ||
-      h.includes('tiktokcdn.com') ||
-      h.includes('tiktokv.com')
-    ) {
-      return `/api/preview-video?url=${encodeURIComponent(mediaUrl)}`;
-    }
-  } catch (_) { /* ignore */ }
-  return mediaUrl;
+function isValidUrl(s) {
+  try { new URL(s); return true; } catch { return false; }
 }
 
-// ============================================================
-// MAIN HANDLER — bound to "Fetch Media" button
-// ============================================================
+// ── MAIN HANDLER ───────────────────────────────────────────────
 async function handleFetch() {
   const input = document.getElementById('urlInput');
   const url   = input?.value?.trim();
@@ -68,332 +53,301 @@ async function handleFetch() {
   clearError();
   clearPreview();
 
-  if (!url)                     return showError('Please paste a video URL first.'),  input?.focus();
-  if (!isValidUrl(url))         return showError("Doesn't look like a valid URL — make sure to include https://");
-  if (!detectPlatform(url))     return showError('Unsupported platform. Supported: Instagram, TikTok, YouTube, Facebook, Twitter/X, Pinterest.');
+  if (!url)          return showError('Please paste a video URL first.'), input?.focus();
+  if (!isValidUrl(url)) return showError('That doesn\'t look like a valid URL. Make sure it starts with https://');
 
   const platform = detectPlatform(url);
+
+  // YouTube disabled message
+  if (platform === 'youtube_disabled') {
+    showError('⏳ YouTube downloading is coming soon! Stay tuned. For now, try Instagram, TikTok, Facebook, Twitter or Pinterest.');
+    return;
+  }
+
+  if (!platform) {
+    return showError('Unsupported platform. We support Instagram, TikTok, Facebook, Twitter/X and Pinterest.');
+  }
+
   setBtnState(true);
   setLoading(true, `Fetching ${getPlatformLabel(platform)} media…`);
 
   try {
-    const result = await callEdge(url);
-    if (result?.error)
-      throw new Error(result.message || result.error || 'Media fetch failed.');
+    const res = await fetch(API_FETCH, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${SUPA_KEY}`,
+      },
+      body: JSON.stringify({ url }),
+    });
 
-    currentMediaData = result;
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      throw new Error(data.message || 'Failed to fetch media.');
+    }
+
+    currentMediaData = data;
     setLoading(false);
-    renderPreview(result, platform);
+    renderPreview(data, platform);
 
   } catch (err) {
     setLoading(false);
-    handleFetchError(err);
+    showError(err.message || 'Failed to fetch media. Check the URL and try again.');
   } finally {
     setBtnState(false);
   }
 }
 
-// ============================================================
-// EDGE FUNCTION CALL
-// ============================================================
-async function callEdge(url) {
-  const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), 35000);
-  try {
-    const res  = await fetch(API_FETCH, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPA_KEY}` },
-      body: JSON.stringify({ url }),
-      signal: ctrl.signal,
-    });
-    clearTimeout(tid);
-    let data = {};
-    try {
-      data = await res.json();
-    } catch {
-      data = {};
-    }
-    if (!res.ok) {
-      const msg =
-        data.message ||
-        data.error ||
-        (res.status >= 500
-          ? 'Our download service is busy. Please wait a moment and try again.'
-          : 'We could not load this link. Check the URL and try again.');
-      throw new Error(typeof msg === 'string' ? msg : 'Something went wrong. Please try again.');
-    }
-    if (data.error && data.message) throw new Error(data.message);
-    return data;
-  } catch (e) {
-    clearTimeout(tid);
-    if (e.name === 'AbortError') throw new Error('Request timed out. Check your connection.');
-    throw e;
-  }
-}
-
-// ============================================================
-// RENDER PREVIEW CARD
-// ============================================================
+// ── RENDER PREVIEW ─────────────────────────────────────────────
 function renderPreview(data, platform) {
   const $ = id => document.getElementById(id);
-  $('previewPlatform').textContent  = getPlatformLabel(platform);
-  $('previewMeta').textContent      = data.duration ? formatDuration(data.duration) : '–';
-  $('previewTitle').textContent     = data.title || 'Untitled Media';
 
-  // Stat chips
-  const chips = [];
-  if (data.uploader)    chips.push('👤 ' + truncate(data.uploader, 22));
-  if (data.view_count)  chips.push('👁 ' + formatNumber(data.view_count));
-  if (data.like_count)  chips.push('❤️ ' + formatNumber(data.like_count));
-  if (data.upload_date) chips.push('📅 ' + formatDate(data.upload_date));
-  if (data.container_hint) chips.push(data.container_hint);
-  $('previewStats').innerHTML = chips.map(c => `<span class="stat-tag">${c}</span>`).join('');
+  $('previewPlatform').textContent = getPlatformLabel(platform);
+  $('previewTitle').textContent    = data.title || 'Media Ready to Download';
 
-  // Thumbnail + play overlay
+  // ── THUMBNAIL / PREVIEW ──
   const wrap = $('previewMediaWrap');
   wrap.innerHTML = '';
-  if (data.thumbnail) {
+
+  const thumbUrl = data.thumbnail || null;
+
+  if (thumbUrl) {
     const img = document.createElement('img');
-    img.src = data.thumbnail;
+    img.src = thumbUrl;
     img.alt = data.title || 'Preview';
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-    img.onerror = () => { img.style.display='none'; };
-
-    const play = document.createElement('div');
-    play.style.cssText = 'position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.18);cursor:pointer;transition:background .2s;';
-    play.innerHTML = '<span style="font-size:3rem;filter:drop-shadow(0 2px 10px rgba(0,0,0,.7))">▶️</span>';
-    play.onmouseenter = () => play.style.background = 'rgba(0,0,0,0.36)';
-    play.onmouseleave = () => play.style.background = 'rgba(0,0,0,0.18)';
-
-    // Prefer a format that includes BOTH video + audio for preview playback.
-    const bestPreviewFormat = data.formats?.find(f => f?.hasVideo && f?.hasAudio) ||
-                               data.formats?.find(f => f?.hasAudio) ||
-                               data.formats?.[0];
-    const bestPreviewUrl = bestPreviewFormat?.url || data.url;
-
-    if (bestPreviewUrl) {
-      play.onclick = () => {
-        wrap.innerHTML = '';
-        const v = document.createElement('video');
-        v.src = previewStreamSrc(bestPreviewUrl);
-
-        v.controls = true;
-        v.setAttribute('playsinline', '');
-        v.setAttribute('webkit-playsinline', '');
-
-        // Treat this as user-initiated playback (we're inside ▶️ click).
-        v.autoplay = true;
-
-        // Force unmuted state on the video element (user-gesture from ▶️ click).
-        v.defaultMuted = false;
-        v.muted = false;
-        v.volume = 1;
-
-        v.playsInline = true;
-        v.preload = 'metadata';
-
-        if (data.thumbnail) v.poster = data.thumbnail;
-        v.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000;';
-        wrap.appendChild(v);
-
-        // Start playback once the browser has something playable.
-        v.load();
-        v.addEventListener('canplay', () => {
-          v.muted = false;
-          v.volume = 1;
-          v.play().catch(() => { /* ignore */ });
-        }, { once: true });
-
-        // Extra safety: after metadata loads, re-apply volume/mute state.
-        v.addEventListener('loadedmetadata', () => {
-          v.muted = false;
-          v.volume = 1;
-        }, { once: true });
-      };
-    }
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:10px;';
+    img.onerror = () => {
+      wrap.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#555570;font-size:3rem;">🎬</div>';
+    };
     wrap.appendChild(img);
-    wrap.appendChild(play);
+  } else if (data.url) {
+    // No thumbnail — show video player directly
+    const v = document.createElement('video');
+    v.src = data.url;
+    v.controls = true;
+    v.playsInline = true;
+    v.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:10px;background:#000;';
+    wrap.appendChild(v);
   } else {
-    wrap.innerHTML = '<div style="color:#555570;text-align:center;font-size:2.4rem;padding:20px;">🎬<br/><span style="font-size:.75rem;font-family:var(--font-body);">No preview</span></div>';
+    wrap.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#555570;font-size:3rem;">🎬</div>';
   }
 
-  // Quality options
-  const formats = data.formats?.length
-    ? data.formats
-    : [{ quality:'HD', label:'Best · MP4 — video with sound', ext: data.ext||'mp4', url: data.url, download_url: data.url, hasVideo:true, hasAudio:true }];
-
-  $('qualityOptions').innerHTML = formats.map((f,i) =>
-    `<button class="quality-btn ${i===0?'active':''}" onclick="selectQuality(this,'${esc(f.quality||'HD')}',${i})">${esc(f.label||f.quality||'HD')}</button>`
-  ).join('');
-  selectedQuality = formats[0]?.quality || 'HD';
-
-  const firstFormat = formats[0] || {};
-  const primaryText =
-    firstFormat.hasVideo && firstFormat.hasAudio
-      ? '⬇️ Download video (with sound)'
-      : firstFormat.hasVideo
-        ? '⬇️ Download video (no sound in this file)'
-        : '⬇️ Download sound only';
-
-  // Download buttons
-  $('downloadActions').innerHTML = `
-    <button class="download-btn download-btn-primary" id="dlPrimary" onclick="triggerDownload(0)">
-      ${primaryText}
-    </button>
-    ${data.audio_url ? `<button class="download-btn download-btn-secondary" onclick="triggerDownloadAudio()">${esc(data.audio_button_label || '🎵 Download sound only')}</button>` : ''}
-    ${data.thumbnail
-      ? `<button class="download-btn download-btn-secondary" onclick="downloadThumbnail()">🖼️ Download Thumbnail</button>`
-      : ''}
-    ${data.whatsapp_share
-      ? `<a href="${data.whatsapp_share}" target="_blank" rel="noopener" class="download-btn download-btn-secondary" style="text-decoration:none;">💬 Share via WhatsApp</a>`
-      : ''}
-  `;
-
-  const previewNote = $('previewNote');
-  if (previewNote) {
-    const ytBundle = Array.isArray(data.formats) && data.formats.some((f) => f?.is_youtube_bundle);
-    if (data.warning) {
-      previewNote.textContent = `⚠️ ${data.warning}`;
-      previewNote.classList.remove('hidden');
-    } else if (ytBundle) {
-      previewNote.textContent =
-        '▶ Preview plays the picture only. Each HD row downloads the matching sound file too (YouTube keeps them separate).';
-      previewNote.classList.remove('hidden');
-    } else if (data.has_audio === false) {
-      previewNote.textContent =
-        '🎧 This pick is picture-only (no sound baked in). Use “Download sound only” if you need the music or voice, then combine in any free video app if you want both.';
-      previewNote.classList.remove('hidden');
-    } else {
-      previewNote.textContent = '';
-      previewNote.classList.add('hidden');
-    }
+  // ── PICKER (carousel / slideshow) ──
+  if (data.is_picker && data.formats?.length > 1) {
+    $('previewMeta').textContent = `${data.formats.length} files`;
+    renderPickerFormats(data);
+  } else {
+    $('previewMeta').textContent = data.ext ? data.ext.toUpperCase() : '';
+    renderSingleFormats(data);
   }
 
   $('previewCard').classList.remove('hidden');
-  setTimeout(() => $('previewCard').scrollIntoView({ behavior:'smooth', block:'nearest' }), 80);
+  setTimeout(() => $('previewCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
 
-  // Log fetch to Supabase analytics
-  logEvent({ url: data.webpage_url||'', platform, title: data.title||'', action:'fetch' });
+  logEvent({ url: data.webpage_url || '', platform, title: data.title || '', action: 'fetch' });
 }
 
-// ============================================================
-// DOWNLOAD TRIGGER
-// ============================================================
+// ── SINGLE FILE FORMATS ────────────────────────────────────────
+function renderSingleFormats(data) {
+  const $ = id => document.getElementById(id);
 
+  // Quality buttons — always show Best quality
+  const formats = data.formats?.length
+    ? data.formats
+    : [{ quality: 'Best', label: 'Best Quality', url: data.url, download_url: data.url, ext: data.ext || 'mp4' }];
+
+  $('qualityOptions').innerHTML = formats.map((f, i) =>
+    `<button class="quality-btn ${i === 0 ? 'active' : ''}" onclick="selectQuality(this, ${i})">
+      ${esc(f.label || f.quality || 'Best')}
+    </button>`
+  ).join('');
+
+  // Download actions
+  let actions = '';
+
+  // Main video download
+  if (data.url || data.download_url) {
+    actions += `
+      <button class="download-btn download-btn-primary" id="dlPrimary" onclick="triggerDownload(0)">
+        ⬇️ Download Video
+      </button>`;
+  }
+
+  // Audio only button (separate)
+  if (data.audio_url) {
+    actions += `
+      <button class="download-btn download-btn-secondary" onclick="triggerDownloadAudio()">
+        🎵 Download Audio Only (MP3)
+      </button>`;
+  }
+
+  // Thumbnail download
+  if (data.thumbnail) {
+    actions += `
+      <button class="download-btn download-btn-secondary" onclick="downloadThumbnail()">
+        🖼️ Download Thumbnail
+      </button>`;
+  }
+
+  // WhatsApp share
+  if (data.whatsapp_share) {
+    actions += `
+      <a href="${data.whatsapp_share}" target="_blank" rel="noopener"
+         class="download-btn download-btn-secondary" style="text-decoration:none;">
+        💬 Share via WhatsApp
+      </a>`;
+  }
+
+  $('downloadActions').innerHTML = actions;
+}
+
+// ── PICKER FORMATS (Instagram carousel etc) ────────────────────
+function renderPickerFormats(data) {
+  const $ = id => document.getElementById(id);
+
+  $('qualityOptions').innerHTML = data.formats.map((f, i) =>
+    `<button class="quality-btn ${i === 0 ? 'active' : ''}" onclick="selectPickerItem(this, ${i})">
+      ${esc(f.label || `File ${i + 1}`)}
+    </button>`
+  ).join('');
+
+  let actions = `
+    <button class="download-btn download-btn-primary" id="dlPrimary" onclick="triggerDownload(0)">
+      ⬇️ Download File 1
+    </button>
+    <button class="download-btn download-btn-secondary" onclick="downloadAllPicker()">
+      ⬇️ Download All Files (${data.formats.length})
+    </button>`;
+
+  if (data.thumbnail) {
+    actions += `
+      <button class="download-btn download-btn-secondary" onclick="downloadThumbnail()">
+        🖼️ Download Thumbnail
+      </button>`;
+  }
+
+  if (data.whatsapp_share) {
+    actions += `
+      <a href="${data.whatsapp_share}" target="_blank" rel="noopener"
+         class="download-btn download-btn-secondary" style="text-decoration:none;">
+        💬 Share via WhatsApp
+      </a>`;
+  }
+
+  $('downloadActions').innerHTML = actions;
+}
+
+// ── DOWNLOAD TRIGGERS ──────────────────────────────────────────
 function triggerDownload(idx) {
   if (!currentMediaData) return;
+
   const formats = currentMediaData.formats || [];
   const fmt     = formats[idx] || formats[0];
+  const dlUrl   = fmt?.download_url || fmt?.url || currentMediaData.download_url || currentMediaData.url;
 
-  const dlUrl = fmt?.download_url || fmt?.url || currentMediaData.url;
   if (!dlUrl) return showError('No download URL available. Please fetch again.');
 
-  if (fmt?.is_youtube_bundle && fmt?.bundle_audio_url) {
-    const videoName = getFilename(currentMediaData, fmt);
-    const dot = videoName.lastIndexOf('.');
-    const stem = dot > 0 ? videoName.slice(0, dot) : videoName;
-    const extV = fmt.ext || 'mp4';
-    const extA = fmt.bundle_audio_ext || 'm4a';
-    startDownload(dlUrl, `${stem}-video.${extV}`);
-    setTimeout(() => {
-      startDownload(fmt.bundle_audio_url, `${stem}-sound.${extA}`);
-    }, 400);
-    showToast('⬇️ Started video + matching sound (two files).');
-    logEvent({
-      url: currentMediaData.webpage_url || '',
-      platform: currentMediaData.platform || '',
-      quality: fmt?.quality || 'HD',
-      action: 'download_youtube_bundle',
-    });
-    return;
-  }
+  const ext      = fmt?.ext || currentMediaData.ext || 'mp4';
+  const title    = (currentMediaData.title || 'fetchclip-video').replace(/[^a-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '-').slice(0, 60);
+  const filename = `${title}.${ext}`;
 
-  if (!fmt?.hasAudio && currentMediaData?.audio_url) {
-    showToast('🎧 Tip: this file has no sound — use “Download sound only” for the soundtrack.');
-  }
-
-  startDownload(dlUrl, getFilename(currentMediaData, fmt));
+  startDownload(dlUrl, filename);
   showToast('⬇️ Download started!');
-  logEvent({
-    url: currentMediaData.webpage_url || '',
-    platform: currentMediaData.platform || '',
-    quality: fmt?.quality || 'HD',
-    action: 'download'
-  });
+  logEvent({ url: currentMediaData.webpage_url || '', platform: currentMediaData.platform || '', action: 'download' });
 }
 
 function triggerDownloadAudio() {
-  if (!currentMediaData?.audio_url) return;
-  const ext = currentMediaData.audio_ext || 'm4a';
-  startDownload(currentMediaData.audio_url, getFilename(currentMediaData, { ext }));
-  showToast('🎵 Sound download started!');
+  if (!currentMediaData?.audio_url) return showError('No audio available for this media.');
+  const title    = (currentMediaData.title || 'fetchclip-audio').replace(/[^a-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '-').slice(0, 60);
+  startDownload(currentMediaData.audio_url, `${title}.mp3`);
+  showToast('🎵 Audio download started!');
 }
 
 function downloadThumbnail() {
-  if (!currentMediaData?.thumbnail) return;
-  startDownload(currentMediaData.thumbnail, 'fetchclip-thumbnail.jpg');
+  if (!currentMediaData?.thumbnail) return showError('No thumbnail available.');
+  const title = (currentMediaData.title || 'fetchclip-thumb').replace(/[^a-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '-').slice(0, 60);
+  startDownload(currentMediaData.thumbnail, `${title}-thumbnail.jpg`);
   showToast('🖼️ Thumbnail saved!');
 }
 
+function downloadAllPicker() {
+  if (!currentMediaData?.formats?.length) return;
+  currentMediaData.formats.forEach((fmt, i) => {
+    setTimeout(() => {
+      const dlUrl = fmt.download_url || fmt.url;
+      if (dlUrl) {
+        const filename = `fetchclip-file-${i + 1}.${fmt.ext || 'mp4'}`;
+        startDownload(dlUrl, filename);
+      }
+    }, i * 800);
+  });
+  showToast(`⬇️ Downloading all ${currentMediaData.formats.length} files!`);
+}
+
+function selectQuality(btn, idx) {
+  document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const dlBtn = document.getElementById('dlPrimary');
+  if (dlBtn) {
+    dlBtn.onclick = () => triggerDownload(idx);
+    const fmt = currentMediaData?.formats?.[idx];
+    dlBtn.innerHTML = `⬇️ Download ${esc(fmt?.label || fmt?.quality || 'Video')}`;
+  }
+}
+
+function selectPickerItem(btn, idx) {
+  document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const fmt   = currentMediaData?.formats?.[idx];
+  const dlBtn = document.getElementById('dlPrimary');
+  if (dlBtn) {
+    dlBtn.onclick = () => triggerDownload(idx);
+    dlBtn.innerHTML = `⬇️ Download ${esc(fmt?.label || `File ${idx + 1}`)}`;
+  }
+
+  // Update preview thumbnail if picker item has thumb
+  if (fmt?.thumb) {
+    const wrap = document.getElementById('previewMediaWrap');
+    const img  = wrap?.querySelector('img');
+    if (img) img.src = fmt.thumb;
+  }
+}
+
 function startDownload(url, filename) {
-  const downloadUrl = `/api/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(filename)}`;
   const a = document.createElement('a');
-  a.href = downloadUrl;
+  a.href     = url;
   a.download = filename;
-  a.style.display = 'none';
+  a.target   = '_blank';
+  a.rel      = 'noopener';
   document.body.appendChild(a);
   a.click();
   setTimeout(() => document.body.removeChild(a), 1000);
 }
 
-
-function selectQuality(btn, quality, idx) {
-  document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedQuality = quality;
-
-  const dlBtn = document.getElementById('dlPrimary');
-  if (!dlBtn) return;
-
-  const fmt = currentMediaData?.formats?.[idx];
-  const hasVideo = Boolean(fmt?.hasVideo);
-  const hasAudio = Boolean(fmt?.hasAudio);
-
-  dlBtn.onclick = () => triggerDownload(idx);
-
-  if (hasVideo && hasAudio) {
-    dlBtn.innerHTML = '⬇️ Download video (with sound)';
-  } else if (hasVideo && !hasAudio) {
-    dlBtn.innerHTML = '⬇️ Download video (no sound in this file)';
-  } else if (!hasVideo && hasAudio) {
-    dlBtn.innerHTML = '⬇️ Download sound only';
-  } else {
-    dlBtn.innerHTML = '⬇️ Download';
-  }
-}
-
-// ============================================================
-// SUPABASE LOGGING (non-blocking)
-// ============================================================
+// ── LOGGING ────────────────────────────────────────────────────
 async function logEvent(payload) {
   try {
     await fetch(API_LOG, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${SUPA_KEY}` },
-      body: JSON.stringify(payload),
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPA_KEY}` },
+      body:    JSON.stringify(payload),
     });
   } catch { /* non-critical */ }
 }
 
-// ============================================================
-// UI STATE HELPERS
-// ============================================================
+// ── UI STATE ───────────────────────────────────────────────────
 function setLoading(show, text) {
   const el = document.getElementById('loadingState');
   if (!el) return;
   show ? el.classList.remove('hidden') : el.classList.add('hidden');
-  if (text) { const t = document.getElementById('loadingText'); if(t) t.textContent = text; }
+  if (text) {
+    const t = document.getElementById('loadingText');
+    if (t) t.textContent = text;
+  }
 }
+
 function setBtnState(disabled) {
   const btn = document.getElementById('fetchBtn');
   if (!btn) return;
@@ -401,45 +355,34 @@ function setBtnState(disabled) {
   document.getElementById('fetchBtnText')?.classList.toggle('hidden', disabled);
   document.getElementById('fetchBtnSpinner')?.classList.toggle('hidden', !disabled);
 }
+
 function showError(msg) {
   const b = document.getElementById('errorBanner');
   const m = document.getElementById('errorMsg');
   if (b && m) { m.textContent = msg; b.classList.remove('hidden'); }
 }
+
 function clearError()   { document.getElementById('errorBanner')?.classList.add('hidden'); }
 function dismissError() { clearError(); }
+
 function clearPreview() {
   document.getElementById('previewCard')?.classList.add('hidden');
   currentMediaData = null;
 }
+
 function showToast(msg) {
   const t = document.getElementById('recentToast');
   const m = document.getElementById('toastMsg');
   if (!t || !m) return;
-  m.textContent = msg;  t.classList.remove('hidden');
-  setTimeout(() => t.classList.add('hidden'), 3200);
+  m.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3500);
 }
 
-// ============================================================
-// PURE UTILITIES
-// ============================================================
-function isValidUrl(s)     { try { new URL(s); return true; } catch { return false; } }
-function truncate(s, n)    { return s.length > n ? s.slice(0, n) + '…' : s; }
-function esc(s)            { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function formatDuration(s) { if (!s||isNaN(s)) return ''; const m=Math.floor(s/60),sec=Math.floor(s%60); return `${m}:${sec.toString().padStart(2,'0')}`; }
-function formatNumber(n)   { if (!n) return ''; if (n>=1e6) return (n/1e6).toFixed(1)+'M'; if (n>=1e3) return (n/1e3).toFixed(1)+'K'; return String(n); }
-function formatDate(d)     { if (!d) return ''; const s=String(d); return s.length===8 ? `${s.slice(6)}.${s.slice(4,6)}.${s.slice(0,4)}` : s; }
-function getFilename(data, fmt) {
-  const t = (data.title||'fetchclip-video').replace(/[^a-zA-Z0-9_\- ]/g,'').trim().replace(/\s+/g,'-').slice(0,60);
-  return `${t}.${fmt?.ext||data.ext||'mp4'}`;
-}
-function handleFetchError(err) {
-  const m = String(err?.message || '');
-  if (/^http\s*\d+/i.test(m)) return showError('We could not load this link. Check the URL and that the post is still public, then try again.');
-  if (m.includes('private')||m.includes('login'))          return showError('This content is private. FetchClip can only download public videos.');
-  if (m.includes('unavailable')||m.includes('removed'))    return showError('This video is unavailable or has been removed by the platform.');
-  if (m.includes('timed out')||m.includes('timeout'))      return showError('Request timed out. Check your internet connection and try again.');
-  if (m.includes('rate')||m.includes('429'))               return showError('Too many requests. Please wait a moment and try again.');
-  if (m.includes('Unsupported')||m.includes('unsupported'))return showError('This URL format is not yet supported.');
-  showError(m || 'Failed to fetch media. Check the URL and try again.');
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }

@@ -137,6 +137,18 @@ function showFormMsg(msg, type) {
   setTimeout(() => el?.remove(), 7000);
 }
 
+// ===== YOUTUBE COMING SOON =====
+function showYoutubeSoon(event) {
+  event.preventDefault();
+  const banner = document.getElementById('youtubeSoonBanner');
+  if (banner) banner.classList.remove('hidden');
+}
+
+function dismissYoutubeSoon() {
+  const banner = document.getElementById('youtubeSoonBanner');
+  if (banner) banner.classList.add('hidden');
+}
+
 // ===== SMOOTH ANCHOR SCROLL =====
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
