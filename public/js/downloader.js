@@ -7,11 +7,11 @@
 // ============================================================
 // LOCAL / REMOTE API ENDPOINTS
 // ============================================================
-const EDGE_BASE     = 'https://ndmbkwxisdzfzptejxzp.supabase.co/functions/v1';
-const API_FETCH     = '/api/fetch-media';
-const API_LOG       = `${EDGE_BASE}/fetch-media/log`;
-const API_CONTACT   = `${EDGE_BASE}/fetch-media/contact`;
-const SUPA_KEY      = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbWJrd3hpc2R6ZnpwdGVqeHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTIyOTcsImV4cCI6MjA5Mzk2ODI5N30.roRS52ID1J3ubsqJ7aeCGPwi8vq5G-wIgga90SzP6NY';
+const EDGE_BASE   = 'https://ndmbkwxisdzfzptejxzp.supabase.co/functions/v1';
+const API_FETCH   = `${EDGE_BASE}/fetch-media`;
+const API_LOG     = `${EDGE_BASE}/fetch-media/log`;
+const API_CONTACT = `${EDGE_BASE}/fetch-media/contact`;
+const SUPA_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbWJrd3hpc2R6ZnpwdGVqeHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTIyOTcsImV4cCI6MjA5Mzk2ODI5N30.roRS52ID1J3ubsqJ7aeCGPwi8vq5G-wIgga90SzP6NY';
 
 // expose for contact form used in main.js
 window.FETCHCLIP_API_CONTACT = API_CONTACT;
