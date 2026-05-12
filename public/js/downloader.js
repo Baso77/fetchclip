@@ -1,14 +1,18 @@
-﻿/**
+/**
  * FetchClip — Downloader Engine v2.0
  * Supports: Instagram, TikTok, Facebook, Twitter/X, Pinterest
  * YouTube: Coming Soon
  */
 
-const EDGE_BASE   = 'https://ndmbkwxisdzfzptejxzp.supabase.co/functions/v1';
-const API_FETCH   = `${EDGE_BASE}/fetch-media`;
-const API_LOG     = `${EDGE_BASE}/fetch-media/log`;
-const API_CONTACT = `${EDGE_BASE}/fetch-media/contact`;
-const SUPA_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbWJrd3hpc2R6ZnpwdGVqeHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTIyOTcsImV4cCI6MjA5Mzk2ODI5N30.roRS52ID1J3ubsqJ7aeCGPwi8vq5G-wIgga90SzP6NY';
+// Get the backend URL from environment or use current origin
+const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : window.location.origin;
+
+const API_FETCH   = `${BACKEND_URL}/api/fetch-media`;
+const API_LOG     = `${BACKEND_URL}/api/log`;
+const API_CONTACT = `${BACKEND_URL}/api/contact`;
+const SUPA_KEY    = ''; // No longer needed for local backend
 
 window.FETCHCLIP_API_CONTACT = API_CONTACT;
 window.FETCHCLIP_SUPA_KEY    = SUPA_KEY;
@@ -76,7 +80,6 @@ async function handleFetch() {
       method:  'POST',
       headers: {
         'Content-Type':  'application/json',
-        'Authorization': `Bearer ${SUPA_KEY}`,
       },
       body: JSON.stringify({ url }),
     });
@@ -331,7 +334,7 @@ async function logEvent(payload) {
   try {
     await fetch(API_LOG, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPA_KEY}` },
+      headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
     });
   } catch { /* non-critical */ }

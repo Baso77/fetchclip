@@ -26,6 +26,18 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.post("/api/log", (req, res) => {
+  // Non-critical logging endpoint
+  console.log("[FetchClip Log]", req.body);
+  res.json({ status: "logged" });
+});
+
+app.post("/api/contact", (req, res) => {
+  // Contact form endpoint
+  console.log("[FetchClip Contact]", req.body);
+  res.json({ status: "received" });
+});
+
 app.get("/api/download", async (req, res) => {
   const fileUrl = req.query.url;
   const fileName = req.query.name || "fetchclip-download";
