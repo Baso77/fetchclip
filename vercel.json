@@ -1,15 +1,32 @@
 {
   "version": 2,
+  "outputDirectory": "public",
   "builds": [
     {
       "src": "backend/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "/backend/server.js"
+    },
+    {
+      "src": "/(.*\\.(css|js|svg|png|jpg|jpeg|ico|txt|xml|webp|woff|woff2|ttf))",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/pages/(.*)",
+      "dest": "/public/pages/$1"
+    },
+    {
+      "src": "/blog/(.*)",
+      "dest": "/public/blog/$1"
     },
     {
       "src": "/",
